@@ -1,7 +1,7 @@
 # Joint Measure — BJD Body Atlas
 
 A website for storing, searching, and comparing BJD and MJD body measurements. It works without a server and can be hosted free with GitHub Pages:
-[GitHub](https://retsinalene.github.io/bjd-body-atlas/)
+[JointMeasure](https://retsinalene.github.io/bjd-body-atlas/)
 
 ## What is included
 
