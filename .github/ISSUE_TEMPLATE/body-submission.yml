@@ -1,0 +1,133 @@
+name: Submit a doll body
+description: Suggest BJD or MJD body measurements for the public catalog.
+title: "[Body submission]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for contributing. Please use measurements from a reliable maker source and enter all sizes in centimetres. Unknown measurements can remain empty.
+
+  - type: input
+    id: brand
+    attributes:
+      label: Brand
+      placeholder: "Example: Doll maker name"
+    validations:
+      required: true
+
+  - type: input
+    id: body-name
+    attributes:
+      label: Body name
+      placeholder: "Example: Classic 60 Body"
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Release or version
+      description: Leave empty if the body has no version information.
+      placeholder: "Example: 2026 version"
+
+  - type: dropdown
+    id: size
+    attributes:
+      label: Size category
+      options:
+        - 1/3
+        - Big 1/3
+        - 1/4
+        - 1/6
+        - Special 1/6
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: gender
+    attributes:
+      label: Gender category
+      options:
+        - Female
+        - Male
+        - Neutral
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: body-type
+    attributes:
+      label: Body type
+      options:
+        - BJD
+        - MJD
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: source
+    attributes:
+      label: Official source
+      description: Link to the maker's product page or official measurement chart.
+      placeholder: "https://..."
+    validations:
+      required: true
+
+  - type: input
+    id: image-source
+    attributes:
+      label: Company image source
+      description: Optional link to the original company image or product page.
+      placeholder: "https://..."
+
+  - type: textarea
+    id: measurements
+    attributes:
+      label: Measurements
+      description: Enter centimetres. Leave unknown values empty.
+      value: |
+        Body height:
+        Head circumference:
+        Neck circumference:
+        Shoulder width:
+        Bust circumference:
+        Waist circumference:
+        Hip circumference:
+        Thigh circumference:
+        Upper arm circumference:
+        Arm length:
+        Hand length:
+        Torso length:
+        Leg length:
+        Inseam:
+        Foot length:
+        Foot width:
+    validations:
+      required: true
+
+  - type: upload
+    id: reference-files
+    attributes:
+      label: Reference image or specification sheet
+      description: Optional. Upload only material you are permitted to share.
+    validations:
+      required: false
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Additional notes
+      description: Add information about resin type, compatibility, measurement method, or uncertainty.
+
+  - type: checkboxes
+    id: confirmation
+    attributes:
+      label: Confirmation
+      options:
+        - label: I checked these measurements against the linked source.
+          required: true
+        - label: Any uploaded files are permitted to be shared, or no files were uploaded.
+          required: true
