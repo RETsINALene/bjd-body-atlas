@@ -8,6 +8,8 @@
     customBodies: [],
     view: "catalog",
     compareMode: { standard: "library", considering: "library" },
+    visibleMetricKeys: new Set(METRICS.map((metric) => metric.key)),
+    pickerIndex: { standard: -1, considering: -1 },
     customCompare: {
       standard: { name: "Custom standard", measurements: {} },
       considering: { name: "Custom candidate", measurements: {} }
@@ -34,7 +36,13 @@
     brand: $("#brand-filter"),
     standardSelect: $("#standard-select"),
     consideringSelect: $("#considering-select"),
+    standardSearch: $("#standard-body-search"),
+    consideringSearch: $("#considering-body-search"),
+    standardResults: $("#standard-search-results"),
+    consideringResults: $("#considering-search-results"),
     comparisonBody: $("#comparison-body"),
+    measurementOptions: $("#measurement-options"),
+    measurementCount: $("#measurement-count"),
     addDialog: $("#add-dialog"),
     addForm: $("#add-form"),
     detailDialog: $("#detail-dialog"),
@@ -76,6 +84,16 @@
       request.onsuccess = () => resolve();
       request.onerror = () => reject(request.error);
     });
+  }
+
+  async function deleteAllCustomBodies() {
+    const db = await openDatabase();
+    await new Promise((resolve, reject) => {
+      const request = db.transaction("bodies", "readwrite").objectStore("bodies").clear();
+      request.onsuccess = () => resolve();
+      request.onerror = () => reject(request.error);
+    });
+    db.close();
   }
 
   function showToast(message) {
@@ -165,6 +183,7 @@
       $(".details-button", card).addEventListener("click", () => openDetails(body));
       $(".compare-card-button", card).addEventListener("click", () => {
         dom.standardSelect.value = body.id;
+        syncBodySearchInput("standard");
         setView("compare");
         renderComparison();
       });
@@ -181,6 +200,107 @@
     if (state.bodies.some((body) => body.id === oldConsidering)) dom.consideringSelect.value = oldConsidering;
     if (!dom.consideringSelect.value && state.bodies[1]) dom.consideringSelect.value = state.bodies[1].id;
     if (dom.standardSelect.value === dom.consideringSelect.value && state.bodies[1]) dom.consideringSelect.value = state.bodies[1].id;
+    syncBodySearchInput("standard");
+    syncBodySearchInput("considering");
+  }
+
+  function pickerElements(side) {
+    return side === "standard"
+      ? { select: dom.standardSelect, input: dom.standardSearch, results: dom.standardResults }
+      : { select: dom.consideringSelect, input: dom.consideringSearch, results: dom.consideringResults };
+  }
+
+  function bodyPickerLabel(body) {
+    return body ? `${body.brand} — ${body.name}` : "";
+  }
+
+  function syncBodySearchInput(side) {
+    const { select, input } = pickerElements(side);
+    const body = state.bodies.find((item) => item.id === select.value);
+    input.value = bodyPickerLabel(body);
+  }
+
+  function searchableBodyText(body) {
+    return [body.name, body.brand, body.size, body.gender, body.type, body.version]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase();
+  }
+
+  function bodySearchMatches(query) {
+    const normalized = query.trim().toLowerCase();
+    if (!normalized) return state.bodies;
+    const terms = normalized.split(/\s+/).filter(Boolean);
+    return state.bodies.filter((body) => {
+      const searchable = searchableBodyText(body);
+      return terms.every((term) => searchable.includes(term));
+    });
+  }
+
+  function setActiveBodyOption(side, index) {
+    const { results } = pickerElements(side);
+    const options = $$(".body-option", results);
+    if (!options.length) return;
+    state.pickerIndex[side] = Math.max(0, Math.min(index, options.length - 1));
+    options.forEach((option, optionIndex) => option.classList.toggle("is-active", optionIndex === state.pickerIndex[side]));
+    options[state.pickerIndex[side]].scrollIntoView({ block: "nearest" });
+  }
+
+  function renderBodySearchResults(side, query = "") {
+    const { select, input, results } = pickerElements(side);
+    const matches = bodySearchMatches(query);
+    state.pickerIndex[side] = -1;
+    results.innerHTML = matches.length
+      ? matches.map((body) => `
+          <button class="body-option ${body.id === select.value ? "is-selected" : ""}" type="button" role="option" aria-selected="${body.id === select.value}" data-body-id="${escapeHtml(body.id)}">
+            <span><strong>${escapeHtml(body.name)}</strong><small>${escapeHtml(body.brand)}${body.local ? " · My entry" : ""}</small></span>
+            <span class="body-option-meta"><span>${escapeHtml(body.size || "—")}</span><span>${escapeHtml(body.gender || "—")}</span><span>${escapeHtml(body.type || "—")}</span></span>
+          </button>`).join("")
+      : '<p class="body-search-empty">No matching bodies.</p>';
+    results.hidden = false;
+    input.setAttribute("aria-expanded", "true");
+
+    $$(".body-option", results).forEach((option, optionIndex) => {
+      option.addEventListener("mouseenter", () => setActiveBodyOption(side, optionIndex));
+      option.addEventListener("click", () => selectLibraryBody(side, option.dataset.bodyId));
+    });
+  }
+
+  function closeBodySearch(side, restoreSelection = true) {
+    const { input, results } = pickerElements(side);
+    results.hidden = true;
+    input.setAttribute("aria-expanded", "false");
+    state.pickerIndex[side] = -1;
+    if (restoreSelection) syncBodySearchInput(side);
+  }
+
+  function selectLibraryBody(side, bodyId) {
+    const { select } = pickerElements(side);
+    if (!state.bodies.some((body) => body.id === bodyId)) return;
+    select.value = bodyId;
+    syncBodySearchInput(side);
+    closeBodySearch(side, false);
+    renderComparison();
+  }
+
+  function handleBodySearchKeydown(side, event) {
+    const { input, results } = pickerElements(side);
+    if (event.key === "Escape") {
+      closeBodySearch(side);
+      input.blur();
+      return;
+    }
+    if (!["ArrowDown", "ArrowUp", "Enter"].includes(event.key)) return;
+    if (results.hidden) renderBodySearchResults(side, input.value);
+    const options = $$(".body-option", results);
+    if (!options.length) return;
+    event.preventDefault();
+    if (event.key === "ArrowDown") setActiveBodyOption(side, state.pickerIndex[side] + 1);
+    if (event.key === "ArrowUp") setActiveBodyOption(side, state.pickerIndex[side] <= 0 ? options.length - 1 : state.pickerIndex[side] - 1);
+    if (event.key === "Enter") {
+      const active = options[state.pickerIndex[side] >= 0 ? state.pickerIndex[side] : 0];
+      selectLibraryBody(side, active.dataset.bodyId);
+    }
   }
 
   function summaryTemplate(body) {
@@ -225,6 +345,50 @@
     return state.bodies.find((body) => body.id === select.value) || state.bodies[0];
   }
 
+  function loadVisibleMetricPreference() {
+    try {
+      const saved = JSON.parse(localStorage.getItem("joint-measure-visible-metrics"));
+      if (!Array.isArray(saved)) return;
+      const knownKeys = new Set(METRICS.map((metric) => metric.key));
+      state.visibleMetricKeys = new Set(saved.filter((key) => knownKeys.has(key)));
+    } catch (error) {
+      console.warn("Measurement display preference could not be loaded.", error);
+    }
+  }
+
+  function saveVisibleMetricPreference() {
+    try {
+      localStorage.setItem("joint-measure-visible-metrics", JSON.stringify([...state.visibleMetricKeys]));
+    } catch (error) {
+      console.warn("Measurement display preference could not be saved.", error);
+    }
+  }
+
+  function renderMeasurementOptions() {
+    dom.measurementOptions.innerHTML = METRICS.map((metric) => `
+      <label class="measurement-option">
+        <input type="checkbox" value="${escapeHtml(metric.key)}" ${state.visibleMetricKeys.has(metric.key) ? "checked" : ""} />
+        <span>${escapeHtml(metric.label)}</span>
+      </label>`).join("");
+    dom.measurementCount.textContent = `${state.visibleMetricKeys.size}/${METRICS.length}`;
+    $$("input[type='checkbox']", dom.measurementOptions).forEach((checkbox) => {
+      checkbox.addEventListener("change", () => {
+        if (checkbox.checked) state.visibleMetricKeys.add(checkbox.value);
+        else state.visibleMetricKeys.delete(checkbox.value);
+        saveVisibleMetricPreference();
+        renderMeasurementOptions();
+        renderComparison();
+      });
+    });
+  }
+
+  function setAllMeasurements(visible) {
+    state.visibleMetricKeys = new Set(visible ? METRICS.map((metric) => metric.key) : []);
+    saveVisibleMetricPreference();
+    renderMeasurementOptions();
+    renderComparison();
+  }
+
   function renderComparison() {
     const standard = bodyForSide("standard");
     const considering = bodyForSide("considering");
@@ -233,7 +397,13 @@
     $("#standard-column-label").textContent = standard?.name || "Standard";
     $("#considering-column-label").textContent = considering?.name || "Considering";
 
-    dom.comparisonBody.innerHTML = METRICS.map((metric) => {
+    const visibleMetrics = METRICS.filter((metric) => state.visibleMetricKeys.has(metric.key));
+    if (!visibleMetrics.length) {
+      dom.comparisonBody.innerHTML = '<tr class="comparison-empty-row"><td colspan="4">Choose at least one measurement to display.</td></tr>';
+      return;
+    }
+
+    dom.comparisonBody.innerHTML = visibleMetrics.map((metric) => {
       const standardValue = standard?.measurements?.[metric.key];
       const consideringValue = considering?.measurements?.[metric.key];
       const canCompare = Number.isFinite(Number(standardValue)) && standardValue !== null && standardValue !== ""
@@ -392,6 +562,26 @@
     URL.revokeObjectURL(url);
   }
 
+  async function clearMyEntries() {
+    if (!state.customBodies.length) {
+      showToast("There are no local entries to clear.");
+      return;
+    }
+    const entryWord = state.customBodies.length === 1 ? "entry" : "entries";
+    const confirmed = window.confirm(`Remove ${state.customBodies.length} saved ${entryWord} from this browser? Public library bodies will not be changed.`);
+    if (!confirmed) return;
+    try {
+      await deleteAllCustomBodies();
+      state.customBodies = [];
+      state.bodies = [...PUBLIC_BODIES];
+      refreshAll();
+      showToast("Your local entries were cleared.");
+    } catch (error) {
+      console.error(error);
+      showToast("Your entries could not be cleared in this browser.");
+    }
+  }
+
   async function importEntries(file) {
     try {
       const data = JSON.parse(await file.text());
@@ -440,6 +630,8 @@
         if (!state.bodies.some((body) => body.id === standardId) || !state.bodies.some((body) => body.id === consideringId)) throw new Error("Unknown body id");
         dom.standardSelect.value = standardId;
         dom.consideringSelect.value = consideringId;
+        syncBodySearchInput("standard");
+        syncBodySearchInput("considering");
         setCompareMode("standard", "library");
         setCompareMode("considering", "library");
         setView("compare");
@@ -461,10 +653,26 @@
     dom.detailDialog.addEventListener("click", (event) => { if (event.target === dom.detailDialog) dom.detailDialog.close(); });
     dom.addDialog.addEventListener("click", (event) => { if (event.target === dom.addDialog) dom.addDialog.close(); });
     $$(".segment").forEach((button) => button.addEventListener("click", () => setCompareMode(button.dataset.side, button.dataset.mode)));
-    dom.standardSelect.addEventListener("change", renderComparison);
-    dom.consideringSelect.addEventListener("change", renderComparison);
+    ["standard", "considering"].forEach((side) => {
+      const { input } = pickerElements(side);
+      input.addEventListener("focus", () => {
+        input.select();
+        renderBodySearchResults(side, "");
+      });
+      input.addEventListener("input", () => renderBodySearchResults(side, input.value));
+      input.addEventListener("keydown", (event) => handleBodySearchKeydown(side, event));
+    });
+    document.addEventListener("click", (event) => {
+      ["standard", "considering"].forEach((side) => {
+        const container = $(`[data-picker-side="${side}"]`);
+        if (!container.contains(event.target)) closeBodySearch(side);
+      });
+    });
+    $("#select-all-measurements").addEventListener("click", () => setAllMeasurements(true));
+    $("#clear-measurements").addEventListener("click", () => setAllMeasurements(false));
     $("#export-button").addEventListener("click", exportEntries);
     $("#import-button").addEventListener("click", () => $("#import-file").click());
+    $("#clear-entries-button").addEventListener("click", clearMyEntries);
     $("#import-file").addEventListener("change", (event) => {
       if (event.target.files[0]) importEntries(event.target.files[0]);
       event.target.value = "";
@@ -479,7 +687,9 @@
   }
 
   async function init() {
+    loadVisibleMetricPreference();
     makeMeasurementFields();
+    renderMeasurementOptions();
     renderCustomPickers();
     bindEvents();
     await loadCustomBodies();
