@@ -96,10 +96,22 @@
               </div>
             </div>
             <div class="library-picker" id="standard-library-panel">
-              <label>
-                <span>Select a body</span>
-                <select id="standard-select"></select>
-              </label>
+              <div class="body-combobox" data-picker-side="standard">
+                <label for="standard-body-search"><span>Search the library</span></label>
+                <input
+                  class="body-search-input"
+                  id="standard-body-search"
+                  type="search"
+                  placeholder="Type a name, brand, size, gender, BJD or MJD"
+                  autocomplete="off"
+                  role="combobox"
+                  aria-autocomplete="list"
+                  aria-expanded="false"
+                  aria-controls="standard-search-results"
+                />
+                <div class="body-search-results" id="standard-search-results" role="listbox" hidden></div>
+                <select id="standard-select" hidden aria-hidden="true" tabindex="-1"></select>
+              </div>
               <div class="selected-summary" id="standard-summary"></div>
             </div>
             <div class="custom-picker" id="standard-custom-panel" hidden></div>
@@ -118,10 +130,22 @@
               </div>
             </div>
             <div class="library-picker" id="considering-library-panel">
-              <label>
-                <span>Select a body</span>
-                <select id="considering-select"></select>
-              </label>
+              <div class="body-combobox" data-picker-side="considering">
+                <label for="considering-body-search"><span>Search the library</span></label>
+                <input
+                  class="body-search-input"
+                  id="considering-body-search"
+                  type="search"
+                  placeholder="Type a name, brand, size, gender, BJD or MJD"
+                  autocomplete="off"
+                  role="combobox"
+                  aria-autocomplete="list"
+                  aria-expanded="false"
+                  aria-controls="considering-search-results"
+                />
+                <div class="body-search-results" id="considering-search-results" role="listbox" hidden></div>
+                <select id="considering-select" hidden aria-hidden="true" tabindex="-1"></select>
+              </div>
               <div class="selected-summary" id="considering-summary"></div>
             </div>
             <div class="custom-picker" id="considering-custom-panel" hidden></div>
@@ -134,7 +158,19 @@
               <p class="eyebrow">MEASUREMENT DELTA</p>
               <h2 id="comparison-table-title">How the candidate differs</h2>
             </div>
-            <p>Red is larger; green is smaller. Empty values are not compared.</p>
+            <div class="result-tools">
+              <p>Red is larger; green is smaller. Empty values are not compared.</p>
+              <details class="measurement-picker" id="measurement-picker">
+                <summary>Choose measurements <span id="measurement-count"></span></summary>
+                <div class="measurement-menu">
+                  <div class="measurement-menu-actions">
+                    <button class="text-button" id="select-all-measurements" type="button">Select all</button>
+                    <button class="text-button" id="clear-measurements" type="button">Clear</button>
+                  </div>
+                  <div class="measurement-options" id="measurement-options"></div>
+                </div>
+              </details>
+            </div>
           </div>
           <div class="table-wrap">
             <table>
@@ -158,6 +194,7 @@
       <div class="footer-actions">
         <button class="text-button" id="export-button">Export my entries</button>
         <button class="text-button" id="import-button">Import entries</button>
+        <button class="text-button footer-subtle" id="clear-entries-button">Clear my entries</button>
         <input id="import-file" type="file" accept="application/json" hidden />
       </div>
     </footer>
