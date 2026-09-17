@@ -129,5 +129,110 @@ window.BODY_DATA = [
       footLength: 6.5,
       //footWidth: 2.5
     }
-  }
+  },
+   {
+      "id": "Azone-s-new-2.0",
+      "name": "Azone S",
+      "brand": "Azone",
+      "size": "Special 1/6",
+      "gender": "Female",
+      "type": "MJD",
+      "version": "new 2.0",
+      "image": "",
+      "imageAlt": "Azone Azone S body",
+      "sourceUrl": "",
+      "documentUrl": "",
+      "measurements": {
+        "heightWithoutHead": 19.4,
+        "neckCircumference": 3.6,
+        "shoulderWidth": 4.3,
+        "bustCircumference": 8.6,
+        "waistCircumference": 6.7,
+        "hipCircumference": 10.6,
+        "armLength": 6.7,
+        "inseam": 10.1,
+        "footLength": 2.3,
+        "footWidth": 1.2
+      }
+    },
+    {
+      "id": "Azone-m-new-2.0",
+      "name": "Azone M",
+      "brand": "Azone",
+      "size": "Special 1/6",
+      "gender": "Female",
+      "type": "MJD",
+      "version": "new 2.0",
+      "image": "",
+      "imageAlt": "Azone Azone M body",
+      "sourceUrl": "",
+      "documentUrl": "",
+      "measurements": {
+        "heightWithoutHead": 21.3,
+        "neckCircumference": 3.6,
+        "shoulderWidth": 4.3,
+        "bustCircumference": 8.6,
+        "waistCircumference": 6.3,
+        "hipCircumference": 10.4,
+        "armLength": 6.7,
+        "inseam": 12.1,
+        "footLength": 2.3,
+        "footWidth": 1.2
+      }
+    },
+    {
+      "id": "MixAngel",
+      "name": "混合天使",
+      "brand": "Mix Angel",
+      "size": "Special 1/6",
+      "gender": "Female",
+      "type": "MJD",
+      "version": "",
+      "image": "",
+      "imageAlt": "Mix Angel Mix Angel body",
+      "sourceUrl": "",
+      "documentUrl": "",
+      "measurements": {
+        "heightWithHead": 22.5,
+        "heightWithoutHead": 25.7,
+        "headCircumference": 10.5,
+        "neckCircumference": 3.3,
+        "shoulderWidth": 4.8,
+        "bustCircumference": 9.8,
+        "waistCircumference": 6.7,
+        "hipCircumference": 10.5,
+        "thighCircumference": 3.1,
+        "upperArmCircumference": 3.1,
+        "armLength": 7.5,
+        "legLength": 14.3,
+        "inseam": 13,
+        "footLength": 2.6
+      }
+    },
+    {
+      "id": "Babybell-20",
+      "name": "小铃铛20",
+      "brand": "Babybell",
+      "size": "Special 1/6",
+      "gender": "Female",
+      "type": "BJD",
+      "version": "",
+      "image": "",
+      "imageAlt": "Babybell 小铃铛20 body",
+      "sourceUrl": "",
+      "documentUrl": "",
+      "measurements": {
+        "heightWithoutHead": 20,
+        "neckCircumference": 2.8,
+        "shoulderWidth": 4.5,
+        "bustCircumference": 9,
+        "waistCircumference": 6.5,
+        "hipCircumference": 10.5,
+        "thighCircumference": 6.5,
+        "torsoLength": 6.5,
+        "legLength": 13,
+        "footLength": 2.6,
+        "footWidth": 1
+      }
+    }
 ];
