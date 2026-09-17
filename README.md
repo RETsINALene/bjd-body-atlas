@@ -1,6 +1,6 @@
 # Joint Measure — BJD Body Atlas
 
-A warm Swiss-minimalist static website for storing, searching, and comparing BJD and MJD body measurements. It works without a server and can be hosted free with GitHub Pages.
+A website for storing, searching, and comparing BJD and MJD body measurements. It works without a server and can be hosted free with GitHub Pages.
 
 ## What is included
 
