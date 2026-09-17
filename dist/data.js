@@ -80,6 +80,36 @@ window.BODY_DATA = [
     }
   },
   {
+    id: "dalili-pang",
+    name: "大力力胖四",
+    brand: "大力力自制",
+    size: "1/4",
+    gender: "Neutral",
+    type: "BJD",
+    //version: "Sample entry",
+    image: "assets/Dalili_pangsi.jpg",
+    //imageAlt: "MDD",
+    sample: true,
+    measurements: {
+      heightWithoutHead: 32.3,
+      //headCircumference: 21.5,
+      neckCircumference: 6.9,
+      shoulderWidth: 8,
+      bustCircumference: 16,
+      waistCircumference: 14.6,
+      hipCircumference: 22.5,
+      thighCircumference: 13,
+      upperArmCircumference: 6.4,
+      armLength: 10,
+      //handLength: 6.8,
+      //torsoLength: 18.9,
+      //legLength: 21,
+      inseam: 17,
+      footLength: 5.1,
+      footWidth: 2.2
+    }
+  },
+  {
     id: "volks-sd-sdgr",
     name: "SDGr",
     brand: "Volks",
