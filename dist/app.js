@@ -141,7 +141,7 @@
             <span class="tag">${escapeHtml(body.type)}</span>
           </div>
           <div class="card-stats">
-            <div class="card-stat"><span>Height</span><strong>${formatValue(body.measurements?.height)}</strong></div>
+            <div class="card-stat"><span>Height</span><strong>${formatValue(body.measurements?.heightWithHead)}</strong></div>
             <div class="card-stat"><span>Waist</span><strong>${formatValue(body.measurements?.waistCircumference)}</strong></div>
             <div class="card-stat"><span>Foot</span><strong>${formatValue(body.measurements?.footLength)}</strong></div>
           </div>
