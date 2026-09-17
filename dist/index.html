@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Browse and compare BJD and MJD body measurements." />
+    <meta name="theme-color" content="#f2ede4" />
+    <title>Joint Measure — BJD Body Atlas</title>
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Skip to content</a>
+
+    <header class="site-header">
+      <a class="wordmark" href="#" aria-label="Joint Measure home">
+        <span class="wordmark-mark" aria-hidden="true"></span>
+        <span>JOINT<br />MEASURE</span>
+      </a>
+      <nav class="primary-nav" aria-label="Primary navigation">
+        <button class="nav-link is-active" data-view="catalog" aria-current="page">Catalog</button>
+        <button class="nav-link" data-view="compare">Compare</button>
+      </nav>
+      <button class="button button-dark" id="open-add-button">+ Add a body</button>
+    </header>
+
+    <main id="main-content">
+      <section class="view is-active" id="catalog-view" aria-labelledby="catalog-title">
+        <div class="catalog-heading content-grid">
+          <div>
+            <p class="eyebrow">BJD / MJD REFERENCE LIBRARY</p>
+            <h1 id="catalog-title">Body atlas</h1>
+          </div>
+          <div class="catalog-note">
+            <span id="body-count">0 bodies</span>
+            <p>Measurements are in centimetres. Check the linked maker source before purchasing.</p>
+          </div>
+        </div>
+
+        <div class="filters content-grid" aria-label="Catalog filters">
+          <label class="search-field">
+            <span class="sr-only">Search body name or brand</span>
+            <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"></circle><path d="m16.2 16.2 4 4"></path></svg>
+            <input id="search-input" type="search" placeholder="Search name or brand" autocomplete="off" />
+          </label>
+          <label>
+            <span>Size</span>
+            <select id="size-filter"><option value="">All sizes</option></select>
+          </label>
+          <label>
+            <span>Gender</span>
+            <select id="gender-filter"><option value="">All genders</option></select>
+          </label>
+          <label>
+            <span>Type</span>
+            <select id="type-filter"><option value="">All types</option></select>
+          </label>
+          <label>
+            <span>Brand</span>
+            <select id="brand-filter"><option value="">All brands</option></select>
+          </label>
+          <button class="text-button" id="clear-filters-button" type="button">Clear</button>
+        </div>
+
+        <div class="catalog-grid content-grid" id="catalog-grid" aria-live="polite"></div>
+        <div class="empty-state" id="catalog-empty" hidden>
+          <p class="eyebrow">NO MATCHES</p>
+          <h2>Try a broader search.</h2>
+          <button class="button button-outline" id="empty-clear-button">Clear filters</button>
+        </div>
+      </section>
+
+      <section class="view" id="compare-view" aria-labelledby="compare-title" hidden>
+        <div class="compare-heading content-grid">
+          <div>
+            <p class="eyebrow">SIDE-BY-SIDE</p>
+            <h1 id="compare-title">Body comparison</h1>
+          </div>
+          <div class="comparison-key" aria-label="Comparison colour key">
+            <span><i class="key-dot key-larger"></i>Larger than standard</span>
+            <span><i class="key-dot key-smaller"></i>Smaller than standard</span>
+          </div>
+        </div>
+
+        <div class="compare-picker content-grid">
+          <article class="picker-card standard-card">
+            <div class="picker-number">01</div>
+            <div class="picker-title-row">
+              <div>
+                <p class="eyebrow">REFERENCE</p>
+                <h2>Standard body</h2>
+              </div>
+              <div class="segmented" role="group" aria-label="Standard body source">
+                <button class="segment is-active" data-side="standard" data-mode="library">Library</button>
+                <button class="segment" data-side="standard" data-mode="custom">Custom</button>
+              </div>
+            </div>
+            <div class="library-picker" id="standard-library-panel">
+              <label>
+                <span>Select a body</span>
+                <select id="standard-select"></select>
+              </label>
+              <div class="selected-summary" id="standard-summary"></div>
+            </div>
+            <div class="custom-picker" id="standard-custom-panel" hidden></div>
+          </article>
+
+          <article class="picker-card considering-card">
+            <div class="picker-number">02</div>
+            <div class="picker-title-row">
+              <div>
+                <p class="eyebrow">CANDIDATE</p>
+                <h2>Considering body</h2>
+              </div>
+              <div class="segmented" role="group" aria-label="Considering body source">
+                <button class="segment is-active" data-side="considering" data-mode="library">Library</button>
+                <button class="segment" data-side="considering" data-mode="custom">Custom</button>
+              </div>
+            </div>
+            <div class="library-picker" id="considering-library-panel">
+              <label>
+                <span>Select a body</span>
+                <select id="considering-select"></select>
+              </label>
+              <div class="selected-summary" id="considering-summary"></div>
+            </div>
+            <div class="custom-picker" id="considering-custom-panel" hidden></div>
+          </article>
+        </div>
+
+        <section class="comparison-result content-grid" aria-labelledby="comparison-table-title">
+          <div class="result-heading">
+            <div>
+              <p class="eyebrow">MEASUREMENT DELTA</p>
+              <h2 id="comparison-table-title">How the candidate differs</h2>
+            </div>
+            <p>Red is larger; green is smaller. Empty values are not compared.</p>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">Measurement</th>
+                  <th scope="col" id="standard-column-label">Standard</th>
+                  <th scope="col" id="considering-column-label">Considering</th>
+                  <th scope="col">Difference</th>
+                </tr>
+              </thead>
+              <tbody id="comparison-body"></tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>JOINT MEASURE <span>—</span> Community body-size reference</p>
+      <div class="footer-actions">
+        <button class="text-button" id="export-button">Export my entries</button>
+        <button class="text-button" id="import-button">Import entries</button>
+        <input id="import-file" type="file" accept="application/json" hidden />
+      </div>
+    </footer>
+
+    <dialog class="modal" id="add-dialog">
+      <form method="dialog" class="modal-shell" id="add-form">
+        <div class="modal-header">
+          <div>
+            <p class="eyebrow">NEW LOCAL ENTRY</p>
+            <h2>Add a body</h2>
+          </div>
+          <button class="icon-button" id="close-add-button" type="button" aria-label="Close dialog">×</button>
+        </div>
+        <p class="form-intro">Saved in this browser. Export a backup or add it to <code>data.js</code> to publish it for everyone.</p>
+
+        <div class="form-section">
+          <h3>Identity</h3>
+          <div class="form-grid form-grid-2">
+            <label><span>Body name *</span><input name="name" required placeholder="e.g. Classic 60" /></label>
+            <label><span>Brand *</span><input name="brand" required placeholder="e.g. Maker name" /></label>
+            <label><span>Size *</span><select name="size" required><option value="">Select size</option><option>1/3</option><option>Big 1/3</option><option>1/4</option><option>1/6</option><option>Special 1/6</option><option>Other</option></select></label>
+            <label><span>Gender *</span><select name="gender" required><option value="">Select gender</option><option>Female</option><option>Male</option><option>Neutral</option><option>Other</option></select></label>
+            <label><span>Type *</span><select name="type" required><option value="">Select type</option><option>BJD</option><option>MJD</option><option>Other</option></select></label>
+            <label><span>Release / version</span><input name="version" placeholder="Optional" /></label>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3>Company image <span>(optional)</span></h3>
+          <div class="form-grid form-grid-2">
+            <label><span>Upload image</span><input name="imageFile" type="file" accept="image/jpeg,image/png,image/webp" /></label>
+            <label><span>Or image URL</span><input name="imageUrl" type="url" placeholder="https://…" /></label>
+            <label><span>Company source page</span><input name="sourceUrl" type="url" placeholder="https://…" /></label>
+            <label><span>Specification sheet / paper URL</span><input name="documentUrl" type="url" placeholder="Optional PDF or page" /></label>
+          </div>
+          <label class="consent-row"><input name="imagePermission" type="checkbox" /><span>I have permission to publish this image or it is provided for sharing by the maker.</span></label>
+        </div>
+
+        <div class="form-section">
+          <h3>Measurements <span>(cm; leave unknown values empty)</span></h3>
+          <div class="measurement-form-grid" id="add-measurement-fields"></div>
+        </div>
+
+        <div class="modal-actions">
+          <button class="button button-outline" value="cancel" type="button" id="cancel-add-button">Cancel</button>
+          <button class="button button-dark" value="default" type="submit">Save body</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog class="modal detail-modal" id="detail-dialog">
+      <div class="modal-shell detail-shell">
+        <button class="icon-button detail-close" id="detail-close-button" aria-label="Close details">×</button>
+        <div id="detail-content"></div>
+      </div>
+    </dialog>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
