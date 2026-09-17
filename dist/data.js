@@ -117,6 +117,7 @@ window.BODY_DATA = [
     imageAlt: "LM-Harmony58",
     measurements: {
       heightWithoutHead: 51,
+      heightWithHead: 58,
       neckCircumference: 9,
       shoulderWidth: 12.5,
       bustCircumference: 22.5,
